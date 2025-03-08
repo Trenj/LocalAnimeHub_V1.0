@@ -1,0 +1,303 @@
+#:kivy 2.2.1
+
+#:set status_map {'planned': 'Запланировано', 'watching': 'Смотрю', 'completed': 'Просмотрено'}
+
+<StarButton@Button>:
+    background_normal: ''
+    background_color: [1, 0.8, 0.2, 1] if self.state == 'down' else [0.9, 0.9, 0.93, 1]
+    color: 1, 0.8, 0.2, 1
+    size_hint: None, None
+    size: dp(35), dp(35)
+    font_size: dp(20)
+
+<StatusButton@Button>:
+    background_normal: ''
+    size_hint: None, None
+    size: dp(120), dp(35)
+    font_size: dp(14)
+
+<SearchBar@BoxLayout>:
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: dp(50)
+    padding: dp(5)
+    spacing: dp(10)
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(10)]
+    
+    TextInput:
+        id: search_input
+        hint_text: 'Поиск аниме...'
+        multiline: False
+        size_hint_x: 0.5
+        background_normal: ''
+        background_active: ''
+        background_color: 0.15, 0.15, 0.15, 1
+        cursor_color: 1, 1, 1, 1
+        foreground_color: 1, 1, 1, 1
+        hint_text_color: 0.7, 0.7, 0.7, 1
+        padding: [dp(15), dp(10)]
+        font_size: dp(16)
+    
+    Spinner:
+        id: status_filter
+        text: 'Все'
+        values: ['Все', 'Запланировано', 'Смотрю', 'Просмотрено']
+        size_hint_x: 0.25
+        background_normal: ''
+        background_color: 0.2, 0.2, 0.2, 1
+        color: 1, 1, 1, 1
+        font_size: dp(14)
+    
+    Spinner:
+        id: sort_by
+        text: 'По названию'
+        values: ['По названию', 'По рейтингу', 'По статусу']
+        size_hint_x: 0.25
+        background_normal: ''
+        background_color: 0.2, 0.2, 0.2, 1
+        color: 1, 1, 1, 1
+        font_size: dp(14)
+
+<AnimeCard>:
+    orientation: 'vertical'
+    size_hint_y: None
+    height: dp(200)
+    padding: dp(0)
+    spacing: dp(0)
+    canvas.before:
+        Color:
+            rgba: 0.15, 0.15, 0.15, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(5)]
+
+    Button:
+        size_hint_y: 0.7
+        background_normal: ''
+        background_color: 0.15, 0.15, 0.15, 1
+        on_press: root.show_details()
+        canvas.before:
+            Color:
+                rgba: 0.2, 0.2, 0.2, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Image:
+            source: root.banner_url if root.banner_url else ''
+            allow_stretch: True
+            keep_ratio: False
+            size: self.parent.size
+            pos: self.parent.pos
+
+    BoxLayout:
+        size_hint_y: 0.3
+        orientation: 'vertical'
+        padding: dp(10)
+        spacing: dp(5)
+        canvas.before:
+            Color:
+                rgba: 0.15, 0.15, 0.15, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Label:
+            text: root.title
+            font_size: dp(16)
+            bold: True
+            color: 1, 1, 1, 1
+            text_size: self.size
+            halign: 'left'
+            valign: 'middle'
+            shorten: True
+            shorten_from: 'right'
+
+        BoxLayout:
+            size_hint_y: None
+            height: dp(20)
+            spacing: dp(10)
+            Label:
+                text: root.rating_text
+                color: root.rating_color
+                font_size: dp(14)
+                size_hint_x: None
+                width: dp(80)
+                halign: 'left'
+            Label:
+                text: root.status_text
+                color: root.status_color
+                font_size: dp(14)
+                size_hint_x: None
+                width: dp(100)
+                halign: 'left'
+
+<AnimeDetailsScreen>:
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: dp(20)
+        padding: dp(20)
+
+        # Верхняя панель с кнопкой назад
+        BoxLayout:
+            size_hint_y: None
+            height: dp(50)
+            spacing: dp(20)
+            Button:
+                text: '← Назад'
+                size_hint_x: None
+                width: dp(120)
+                background_normal: ''
+                background_color: 0.2, 0.2, 0.2, 1
+                color: 1, 1, 1, 1
+                on_press: root.go_back()
+
+        # Основной контент
+        ScrollView:
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: dp(20)
+
+                # Баннер
+                BoxLayout:
+                    size_hint_y: None
+                    height: dp(300)
+                    canvas.before:
+                        Color:
+                            rgba: 0.2, 0.2, 0.2, 1
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    AsyncImage:
+                        source: root.banner_url if root.banner_url else ''
+                        allow_stretch: True
+                        keep_ratio: False
+
+                # Заголовок и рейтинг
+                BoxLayout:
+                    size_hint_y: None
+                    height: dp(50)
+                    spacing: dp(20)
+                    Label:
+                        text: root.title
+                        font_size: dp(24)
+                        bold: True
+                        color: 1, 1, 1, 1
+                        text_size: self.size
+                        halign: 'left'
+                        valign: 'middle'
+                    Label:
+                        text: root.rating_text
+                        color: root.rating_color
+                        font_size: dp(20)
+                        size_hint_x: None
+                        width: dp(100)
+
+                # Описание
+                Label:
+                    text: root.description
+                    text_size: self.width, None
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    color: 0.9, 0.9, 0.9, 1
+                    font_size: dp(16)
+                    padding: dp(10), dp(10)
+
+                # Рейтинг
+                BoxLayout:
+                    size_hint_y: None
+                    height: dp(50)
+                    spacing: dp(10)
+                    Label:
+                        text: 'Рейтинг:'
+                        size_hint_x: None
+                        width: dp(70)
+                        color: 0.9, 0.9, 0.9, 1
+                        font_size: dp(16)
+                    GridLayout:
+                        cols: 5
+                        spacing: dp(5)
+                        size_hint_x: None
+                        width: dp(185)
+                        StarButton:
+                            text: '★'
+                            state: 'down' if root.rating >= 1 else 'normal'
+                            on_press: root.update_rating(1)
+                        StarButton:
+                            text: '★'
+                            state: 'down' if root.rating >= 2 else 'normal'
+                            on_press: root.update_rating(2)
+                        StarButton:
+                            text: '★'
+                            state: 'down' if root.rating >= 3 else 'normal'
+                            on_press: root.update_rating(3)
+                        StarButton:
+                            text: '★'
+                            state: 'down' if root.rating >= 4 else 'normal'
+                            on_press: root.update_rating(4)
+                        StarButton:
+                            text: '★'
+                            state: 'down' if root.rating >= 5 else 'normal'
+                            on_press: root.update_rating(5)
+
+                # Статус
+                BoxLayout:
+                    size_hint_y: None
+                    height: dp(50)
+                    spacing: dp(10)
+                    Label:
+                        text: 'Статус:'
+                        size_hint_x: None
+                        width: dp(70)
+                        color: 0.9, 0.9, 0.9, 1
+                        font_size: dp(16)
+                    StatusButton:
+                        text: 'Запланировано'
+                        background_color: [0.3, 0.3, 1, 1] if root.status == 'planned' else [0.2, 0.2, 0.2, 1]
+                        color: [1, 1, 1, 1]
+                        on_press: root.update_status('planned')
+                    StatusButton:
+                        text: 'Смотрю'
+                        background_color: [1, 0.6, 0.2, 1] if root.status == 'watching' else [0.2, 0.2, 0.2, 1]
+                        color: [1, 1, 1, 1]
+                        on_press: root.update_status('watching')
+                    StatusButton:
+                        text: 'Просмотрено'
+                        background_color: [0.2, 0.8, 0.2, 1] if root.status == 'completed' else [0.2, 0.2, 0.2, 1]
+                        color: [1, 1, 1, 1]
+                        on_press: root.update_status('completed')
+
+                # Кнопки действий
+                BoxLayout:
+                    size_hint_y: None
+                    height: dp(50)
+                    spacing: dp(20)
+                    Button:
+                        text: 'Смотреть трейлер'
+                        background_normal: ''
+                        background_color: 0.8, 0.2, 0.2, 1
+                        color: 1, 1, 1, 1
+                        font_size: dp(16)
+                        on_press: root.open_trailer()
+                    Button:
+                        text: 'Начать просмотр'
+                        background_normal: ''
+                        background_color: 0.2, 0.8, 0.2, 1
+                        color: 1, 1, 1, 1
+                        font_size: dp(16)
+                        on_press: root.open_watch_link()
